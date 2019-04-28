@@ -100,5 +100,5 @@ ENV/
 # mypy
 .mypy_cache/
 # 2019.4.28
-pre_trained
+pre_trained/
 .idea

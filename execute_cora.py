@@ -4,7 +4,8 @@ import tensorflow as tf
 
 from models import GAT
 from utils import process
-
+import time
+start_time = time.time()
 checkpt_file = 'pre_trained/cora/mod_cora.ckpt'
 
 dataset = 'cora'
@@ -32,6 +33,20 @@ print('nb. attention heads: ' + str(n_heads))
 print('residual: ' + str(residual))
 print('nonlinearity: ' + str(nonlinearity))
 print('model: ' + str(model))
+'''
+----- Opt. hyperparams -----
+lr: 0.005
+l2_coef: 0.0005
+----- Archi. hyperparams -----
+nb. layers: 1
+nb. units per layer: [8]
+nb. attention heads: [8, 1]
+residual: False
+nonlinearity: <function elu at 0x000001C9FE184950>
+model: <class 'models.gat.GAT'>
+(2708, 2708)
+(2708, 1433)
+'''
 
 adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = process.load_data(dataset)
 features, spars = process.preprocess_features(features)
@@ -172,3 +187,6 @@ with tf.Graph().as_default():
         print('Test loss:', ts_loss/ts_step, '; Test accuracy:', ts_acc/ts_step)
 
         sess.close()
+total_time = (time.time() - start_time)/60.0
+print(total_time)
+print(total_time,'分钟')
