@@ -12,17 +12,33 @@ import sys
  Expected shape: [graph, nodes, nodes]
 """
 def adj_to_bias(adj, sizes, nhood=1):
+    '''
+    目的是什么？？？
+    :param adj: (1,2708,2708) 各个图的邻接矩阵,此数据集只有一个图
+    :param sizes: list,每个图的节点数量
+    :param nhood: int,邻居的阶数, 本次实验用的是1阶
+    :return: (graph, nodes, nodes) -> (1,2708,2708)
+    '''
+    # nb应该是number的意思
     nb_graphs = adj.shape[0]
     mt = np.empty(adj.shape)
     for g in range(nb_graphs):
+        # 生成单位矩阵
         mt[g] = np.eye(adj.shape[1])
         for _ in range(nhood):
+            # 邻接矩阵加单位阵的用处: 把i也作为i的邻居节点
+            # 只用1阶邻居节点的话，下面这句没必要np.matmul
             mt[g] = np.matmul(mt[g], (adj[g] + np.eye(adj.shape[1])))
+            # mt[g] = adj[g] + np.eye(adj.shape[1])
+        # mt是邻接矩阵(对称), 记录了哪两个节点之间有边
         for i in range(sizes[g]):
             for j in range(sizes[g]):
                 if mt[g][i][j] > 0.0:
                     mt[g][i][j] = 1.0
-    return -1e9 * (1.0 - mt)
+    # print('================================')
+    # print(-1e9 * (1.0 - mt))
+    # print('================================')
+    return -1e9 * (1.0 - mt) # 邻接矩阵中没有边的位置的值：-1e9   有边的位置的值：0
 
 
 ###############################################

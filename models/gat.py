@@ -7,6 +7,22 @@ from models.base_gattn import BaseGAttN
 class GAT(BaseGAttN):
     def inference(inputs, nb_classes, nb_nodes, training, attn_drop, ffd_drop,
             bias_mat, hid_units, n_heads, activation=tf.nn.elu, residual=False):
+        '''
+        hid_units = [8] # numbers of hidden units per each attention head in each layer
+        n_heads = [8, 1] # additional entry for the output layer
+
+        :param nb_classes:
+        :param nb_nodes:
+        :param training:
+        :param attn_drop:
+        :param ffd_drop:
+        :param bias_mat:
+        :param hid_units:
+        :param n_heads:
+        :param activation:
+        :param residual:
+        :return:
+        '''
         attns = []
         # GAT的第一层, n_heads是个list, 含义是啥?
         for _ in range(n_heads[0]):
@@ -14,7 +30,7 @@ class GAT(BaseGAttN):
                 out_sz=hid_units[0], activation=activation,
                 in_drop=ffd_drop, coef_drop=attn_drop, residual=False))
         h_1 = tf.concat(attns, axis=-1)
-        # hid_units应该表示GAT的层数
+        # hid_units应该表示GAT的层数, 下面这个循环压根就不执行
         for i in range(1, len(hid_units)):
             h_old = h_1
             attns = []

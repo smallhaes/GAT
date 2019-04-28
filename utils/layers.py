@@ -4,6 +4,17 @@ import tensorflow as tf
 conv1d = tf.layers.conv1d
 
 def attn_head(seq, out_sz, bias_mat, activation, in_drop=0.0, coef_drop=0.0, residual=False):
+    '''
+
+    :param seq: 模型的输入是ftr_in：(batch_size, nb_nodes, ft_size) -> (1, 2708, 1433)
+    :param out_sz:
+    :param bias_mat:
+    :param activation:
+    :param in_drop:
+    :param coef_drop:
+    :param residual:
+    :return:
+    '''
     with tf.name_scope('my_attn'):
         if in_drop != 0.0:
             seq = tf.nn.dropout(seq, 1.0 - in_drop)

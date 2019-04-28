@@ -5,6 +5,7 @@ import tensorflow as tf
 from models import GAT
 from utils import process
 import time
+from utils.mine import var_detail
 start_time = time.time()
 checkpt_file = 'pre_trained/cora/mod_cora.ckpt'
 
@@ -48,15 +49,39 @@ model: <class 'models.gat.GAT'>
 (2708, 1433)
 '''
 
+
+
+'''
+adj             (2708,2708)
+features        (2708,1433) 
+y_train         (2708,7) 
+y_val           (2708,7)
+y_test          (2708,7)
+train_mask      (2708) 
+val_mask        (2708)
+test_mask       (2708)
+'''
 adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = process.load_data(dataset)
+# var_detail(adj,globals())
+# features:(2708,1433)
 features, spars = process.preprocess_features(features)
-
+# nb_nodes: 节点的数量, 2708
 nb_nodes = features.shape[0]
+# 节点特征的维度, 1433
 ft_size = features.shape[1]
+# classes: 类别数量, 7
 nb_classes = y_train.shape[1]
-
+'''
+adj             (1,2708,2708)
+features        (1,2708,1433) 
+y_train         (1,2708,7) 
+y_val           (1,2708,7)
+y_test          (1,2708,7)
+train_mask      (1,2708) 
+val_mask        (1,2708)
+test_mask       (1,2708)
+'''
 adj = adj.todense()
-
 features = features[np.newaxis]
 adj = adj[np.newaxis]
 y_train = y_train[np.newaxis]
@@ -66,7 +91,10 @@ train_mask = train_mask[np.newaxis]
 val_mask = val_mask[np.newaxis]
 test_mask = test_mask[np.newaxis]
 
-biases = process.adj_to_bias(adj, [nb_nodes], nhood=1)
+biases = process.adj_to_bias(adj=adj, sizes=[nb_nodes], nhood=1)
+
+# var_detail(adj,globals())
+
 
 with tf.Graph().as_default():
     with tf.name_scope('input'):
@@ -78,8 +106,8 @@ with tf.Graph().as_default():
         ffd_drop = tf.placeholder(dtype=tf.float32, shape=())
         is_train = tf.placeholder(dtype=tf.bool, shape=())
 
-    logits = model.inference(ftr_in, nb_classes, nb_nodes, is_train,
-                                attn_drop, ffd_drop,
+    logits = model.inference(inputs=ftr_in, nb_classes=nb_classes, nb_nodes=nb_nodes, training=is_train,
+                                attn_drop=attn_drop, ffd_drop=ffd_drop,
                                 bias_mat=bias_in,
                                 hid_units=hid_units, n_heads=n_heads,
                                 residual=residual, activation=nonlinearity)
@@ -190,3 +218,4 @@ with tf.Graph().as_default():
 total_time = (time.time() - start_time)/60.0
 print(total_time)
 print(total_time,'分钟')
+
