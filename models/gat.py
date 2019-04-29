@@ -47,5 +47,5 @@ class GAT(BaseGAttN):
                 out_sz=nb_classes, activation=lambda x: x,
                 in_drop=ffd_drop, coef_drop=attn_drop, residual=False))
         logits = tf.add_n(out) / n_heads[-1]
-    
+
         return logits
