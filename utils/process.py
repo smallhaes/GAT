@@ -19,7 +19,7 @@ def adj_to_bias(adj, sizes, nhood=1):
     :param nhood: int,邻居的阶数, 本次实验用的是1阶
     :return: (graph, nodes, nodes) -> (1,2708,2708)
     '''
-    # nb应该是number的意思
+    # nb是number的意思
     nb_graphs = adj.shape[0]
     mt = np.empty(adj.shape)
     for g in range(nb_graphs):
