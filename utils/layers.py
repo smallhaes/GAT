@@ -35,15 +35,17 @@ def attn_head(seq, out_sz, bias_mat, activation, in_drop=0.0, coef_drop=0.0, res
         f_2 = tf.layers.conv1d(inputs=seq_fts, filters=1, kernel_size=1)
         # 下面这步是啥意思?
         # logits是个1*2708*2708的矩阵, 不考虑第0维, 只看第1维和第2维构成的矩阵: logits_ij表示特征i和特征j相加的结果
-        logits = f_1 + tf.transpose(f_2, [0, 2, 1])
+        # 每一行代表一个节点, 每一列代表一个节点. 单独看第一行,第一行的每个元素表示该元素对应节点对第一个节点的"影响"大小
+        logits = f_1 + tf.transpose(f_2, [0, 2, 1]) #N*N   2703*2703
         # 默认在axis=-1上进行softmax
-        coefs = tf.nn.softmax(tf.nn.leaky_relu(features=logits, alpha=0.2) + bias_mat)
+        # 逐行进行归一化, 得到具体的注意力机制大小, 比如a_12表示第二个节点对第一个节点的影响大小
+        coefs = tf.nn.softmax(tf.nn.leaky_relu(features=logits, alpha=0.2) + bias_mat) # N*N  2703*2703
 
         if coef_drop != 0.0:
             coefs = tf.nn.dropout(coefs, 1.0 - coef_drop)
         if in_drop != 0.0:
             seq_fts = tf.nn.dropout(seq_fts, 1.0 - in_drop)
-
+        # 考虑j对i的影响, 那么a要分别于j向量各个维度的数相乘; 想想看,aij表示j对于i的影响,量化之后就是a*j
         vals = tf.matmul(coefs, seq_fts)
         ret = tf.contrib.layers.bias_add(vals)
 
